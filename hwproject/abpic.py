@@ -4,12 +4,13 @@
 import sys
 import cv2 as cv
 import numpy as np
-from selfpackage import window
-from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtWidgets import (QApplication, QDialog, QFileDialog, QGridLayout, QLabel, QPushButton)
+from selfpackage import pwindow
+from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtWidgets import (QApplication, QDialog, QFileDialog,
+    QGridLayout, QLabel, QPushButton, QWidget, QToolTip)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    a = window()
-    a.show()
-    app.exec()
+    p = pwindow()
+    # w.initUI()
+    sys.exit(app.exec_())
