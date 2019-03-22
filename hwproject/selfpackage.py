@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import PIL.Image as img
 import cv2 as cv
 import numpy as np
 import requests
@@ -80,7 +81,7 @@ class cwindow(QWidget):
         super().__init__()
         self.initUI()
 
-     # 初始化窗口函数
+    # 初始化窗口函数
     def initUI(self):
 
         # 窗口大小，位置，名称，图标
@@ -90,20 +91,37 @@ class cwindow(QWidget):
         # self.show()
 
         self.la = QLabel()
-        self.lrbtn = QPushButton('lr', self)
-        self.rrbtn = QPushButton('rr', self)
+        self.lrbtn = QPushButton('左旋', self)
+        self.rrbtn = QPushButton('右旋', self)
+        self.mabtn = QPushButton('放大', self)
+        self.shbtn = QPushButton('缩小', self)
+        self.mbtn = QPushButton('无损放大', self)
+        self.dfbtn = QPushButton('去雾', self)
+        self.libtn = QPushButton('增艳', self)
+        self.sabtn = QPushButton('另存为', self)
 
         # 创建quit按钮
         self.qbtn = QPushButton('Quit', self)
         self.qbtn.setToolTip('Quit this app')
         self.qbtn.clicked.connect(QCoreApplication.instance().quit)
 
+        self.mabtn.clicked.connect(self.magnify_img)
+        self.shbtn.clicked.connect(self.shrink_img)
+        self.lrbtn.clicked.connect(self.leftrotation)
+        self.rrbtn.clicked.connect(self.rightrotation)
+
         # 布局设定
         layout = QGridLayout(self)
-        layout.addWidget(self.la, 1, 1, 4, 4)
-        layout.addWidget(self.lrbtn, 1, 5, 1, 1)
-        layout.addWidget(self.rrbtn, 2, 5, 1, 1)
-        layout.addWidget(self.qbtn, 4, 5, 1, 1)
+        layout.addWidget(self.la, 1, 1, 6, 6)
+        layout.addWidget(self.lrbtn, 1, 7, 1, 1)
+        layout.addWidget(self.rrbtn, 2, 7, 1, 1)
+        layout.addWidget(self.mabtn, 3, 7, 1, 1)
+        layout.addWidget(self.shbtn, 4, 7, 1, 1)
+        layout.addWidget(self.mbtn, 5, 7, 1, 1)
+        layout.addWidget(self.dfbtn, 6, 7, 1, 1)
+        layout.addWidget(self.libtn, 7, 7, 1, 1)
+        layout.addWidget(self.sabtn, 8, 7, 1, 1)
+        layout.addWidget(self.qbtn, 9, 7, 1, 1)
 
     def handle_click(self):
         if not self.isVisible():
@@ -184,3 +202,43 @@ class cwindow(QWidget):
             except Exception as ex:
                 print("--------Error----")
                 pass
+
+    def magnify_img(self):
+
+        self.img = cv.resize(self.img, (0, 0), fx=1.5, fy=1.5,
+                             interpolation=cv.INTER_NEAREST)
+        # print(self.img.shape[1])
+        # r = 100.0 / self.img.shape[1]
+        # dim = (100, int(self.img.shape[0] * r))
+        # self.img = cv.resize(self.img, dim, interpolation=cv.INTER_AREA)
+        self.refreshShow1()
+
+    def shrink_img(self):
+        # height, width = self.img.shape[:2]
+        # size = (int(width * 0.3), int(height * 0.5))
+        # self.img = cv.resize(self.img, size, interpolation=cv.INTER_AREA)
+        self.img = cv.resize(self.img, (0, 0), fx=0.667, fy=0.667,
+                             interpolation=cv.INTER_NEAREST)
+        self.refreshShow1()
+
+    def leftrotation(self):
+
+        # rows, cols = self.img.shape
+        # print(rows, cols)
+        # 90度旋转
+        # M = cv.getRotationMatrix2D((cols / 2, rows / 2), 90, 1)
+        # self.img = cv.warpAffine(self.img, M, (cols, rows))
+
+        self.img = np.rot90(self.img)
+        # self.img = img.transpose(img.ROTATE_270)
+        self.img = cv.resize(self.img, (0, 0), fx=1, fy=1,
+                             interpolation=cv.INTER_NEAREST)
+        self.refreshShow1()
+
+    def rightrotation(self):
+        self.img = np.rot90(self.img)
+        self.img = np.rot90(self.img)
+        self.img = np.rot90(self.img)
+        self.img = cv.resize(self.img, (0, 0), fx=1, fy=1,
+                             interpolation=cv.INTER_NEAREST)
+        self.refreshShow1()
