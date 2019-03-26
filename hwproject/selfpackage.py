@@ -4,7 +4,7 @@
 import sys
 import re
 import PIL.Image as img
-import qtawesome
+# import qtawesome
 import cv2 as cv
 import numpy as np
 import requests
@@ -13,7 +13,7 @@ from PyQt5.QtCore import QCoreApplication, Qt
 # from PyQt5 import QtCore,QtGui,QtWidgets
 from PyQt5.QtWidgets import (QApplication, QDialog, QFileDialog,
     QGridLayout, QLabel, QPushButton, QWidget, QToolTip, QMessageBox,
-    QInputDialog, QLineEdit, QComboBox)
+    QInputDialog, QLineEdit, QComboBox, QScrollArea, QTabWidget)
 import base64
 import urllib
 import urllib.request
@@ -25,7 +25,6 @@ class pwindow(QWidget):
 
     def __init__(self):
         super().__init__()
-        # self.init_show()
         self.initUI()
 
     # 初始化窗口函数
@@ -35,7 +34,7 @@ class pwindow(QWidget):
         self.setGeometry(300, 300, 600, 400)
         self.setWindowTitle('photo processing tool')
         self.setWindowIcon(QIcon('pic.png'))
-        self.show()
+        # self.show()
 
         # 为tooltip设置了10px的Sanserif字体
         QToolTip.setFont(QFont('SansSerif', 15))
@@ -66,7 +65,7 @@ class pwindow(QWidget):
         layout.addWidget(qbtn, 4, 3, 1, 1)
         # layout.addWidget(abtn, 4, 1, 1, 1)
 
-        self.show()
+        # self.show()
 
     # 二次确认是否退出
     def closeEvent(self, event):
@@ -95,9 +94,9 @@ class cwindow(QWidget):
         # 窗口大小，位置，名称，图标
         # self.setGeometry(300, 300, 1000, 800)
         # self.setFixedSize(960, 700)
-        self.resize(1600, 1200)
+        self.resize(1024, 768)
         # self.setMaximumSize(1600, 1200)
-        self.setMinimumSize(1600, 1200)
+        self.setMinimumSize(1024, 768)
         self.setWindowTitle('Adding successfully')
         self.setWindowIcon(QIcon('pic.png'))
 
@@ -120,7 +119,9 @@ class cwindow(QWidget):
         # # self.setCentralWidget(self.main_widget)  # 设置窗口主部件
 
         # 创建图像处理功能按钮
-        self.la = QLabel()
+        self.la = QLabel(self)
+        self.scrollarea = QScrollArea(self)
+        self.tab = QTabWidget(self)
         self.textlabel = QLabel(self)
         self.lrbtn = QPushButton('左旋', self)
         self.rrbtn = QPushButton('右旋', self)
@@ -130,6 +131,8 @@ class cwindow(QWidget):
         self.dfbtn = QPushButton('去雾', self)
         self.libtn = QPushButton('增艳', self)
         self.sabtn = QPushButton('另存为', self)
+        self.pickbtn = QPushButton('确定', self)
+        self.addbtn = QPushButton('添加', self)
 
         # 创建quit按钮
         self.qbtn = QPushButton('Quit', self)
@@ -137,10 +140,17 @@ class cwindow(QWidget):
         self.qbtn.clicked.connect(QCoreApplication.instance().quit)
 
         self.la.setStyleSheet("QLabel{background:white;}")
+        # self.la.setAlignment(Qt.AlignCenter)
+        self.la.setScaledContents(True)
+        self.scrollarea.setWidget(self.la)
+        self.scrollarea.setWidgetResizable(False)
+        # self.scrollarea.setMinimumSize(800, 600)
+        self.scrollarea.setAlignment(Qt.AlignCenter)
+        self.tab.addTab(self.scrollarea, "page 1")
+        self.tab.show()
         self.textlabel.setStyleSheet("QLabel{background:white;}"
                            "QLabel{color:rgb(100,100,100,250);font-size:20px;font-weight:bold;font-family:宋体;}"
                            "QLabel:hover{color:rgb(100,100,100,120);}")
-
 
         self.mabtn.clicked.connect(self.magnify_img)
         self.shbtn.clicked.connect(self.shrink_img)
@@ -148,21 +158,26 @@ class cwindow(QWidget):
         self.lrbtn.clicked.connect(self.leftrotation)
         self.rrbtn.clicked.connect(self.rightrotation)
         self.sabtn.clicked.connect(self.saveImg)
+
         self.libtn.clicked.connect(self.color)
         self.dfbtn.clicked.connect(self.defog)
 
-        combo = QComboBox(self)  # 创建一个下拉列表框并填充了五个列表项
-        combo.addItem("花卉识别")
-        combo.addItem("菜品识别")
-        combo.addItem("动物识别")
-        combo.addItem("植物识别")
-        combo.addItem("地标识别")
-        combo.activated[str].connect(self.onActivated)
+        self.combo = QComboBox(self)  # 创建一个下拉列表框并填充了五个列表项
+        self.combo.addItem("菜品识别")
+        self.combo.addItem("动物识别")
+        self.combo.addItem("植物识别")
+        self.combo.addItem("地标识别")
+        self.combo.addItem("logo识别")
+        self.combo.addItem("车型识别")
+        self.combo.addItem("通用物体识别")
+        self.combo.activated[str].connect(self.onActivated)
+        # self.pickbtn.clicked.connect(self.activate)
         # 一旦列表项被选中，会调用onActivated()方法
 
         # 布局设定
         self.layout = QGridLayout(self)
-        self.layout.addWidget(self.la, 0, 0, 16, 10)
+        self.layout.addWidget(self.la, 1, 0, 16, 10)
+        self.layout.addWidget(self.scrollarea, )
         self.layout.addWidget(self.lrbtn, 0, 10, 2, 1)
         self.layout.addWidget(self.rrbtn, 1, 10, 2, 1)
         self.layout.addWidget(self.mabtn, 2, 10, 2, 1)
@@ -171,17 +186,32 @@ class cwindow(QWidget):
         self.layout.addWidget(self.dfbtn, 5, 10, 2, 1)
         self.layout.addWidget(self.libtn, 6, 10, 2, 1)
         self.layout.addWidget(self.sabtn, 7, 10, 2, 1)
-        self.layout.addWidget(combo, 9, 10, 1, 1)
+        self.layout.addWidget(self.combo, 9, 10, 1, 1)
+        self.layout.addWidget(self.pickbtn, 9, 11, 1, 1)
         self.layout.addWidget(self.textlabel, 10, 10, 2, 2)
-        self.layout.addWidget(self.qbtn, 12, 10, 2, 1)
+        self.layout.addWidget(self.addbtn, 12, 10, 2, 1)
+        self.layout.addWidget(self.qbtn, 13, 10, 2, 1)
+
+        self.show()
+
+    def activate(self):
+        self.combo.activated[str].connect(self.onActivated)
 
     def onActivated(self, text):
-        if text == "花卉识别":
-            self.leftrotation()
-        elif text == "动物识别":
+        if text == "动物识别":
             self.animalread()
-        # elif text == "菜品识别":
-        #     self.dishread()
+        elif text == "菜品识别":
+            self.dishread()
+        elif text == "植物识别":
+            self.plantread()
+        elif text == "logo识别":
+            self.logoread()
+        elif text == "地标识别":
+            self.landmarkread()
+        elif text == "车型识别":
+            self.carread()
+        elif text == "通用物体识别":
+            self.anythingread()
 
     def handle_click(self):
         if not self.isVisible():
@@ -421,3 +451,141 @@ class cwindow(QWidget):
         # print(content)
         # self.textlabel.setText(content)
         # self.textlabel.adjustSize()
+
+    def plantread(self):
+        request_url = "https://aip.baidubce.com/rest/2.0/image-classify/v1/plant"
+
+        img = cv.imencode('.jpg', self.img)[1]
+        img = str(base64.b64encode(img))[2:-1]
+        params = {"image": img}
+
+        params = urllib.parse.urlencode(params).encode("utf-8")
+
+        access_token = '24.d66d45b666d64c58d4597c26018f195d.2592000.1555499580.282335-15777373'
+        request_url = request_url + "?access_token=" + access_token
+        request = urllib.request.Request(url=request_url, data=params)
+        request.add_header('Content-Type', 'application/x-www-form-urlencoded')
+        response = urllib.request.urlopen(request)
+        content = response.read().decode("utf-8")
+
+        line = content.strip()
+        p2 = re.compile('[^\u4e00-\u9fa5]')  # 中文的编码范围是：\u4e00到\u9fa5
+        zh = " ".join(p2.split(line)).strip()
+        zh = "\n".join(zh.split())
+        outStr = zh
+        self.textlabel.setText(outStr)
+
+    def dishread(self):
+        request_url = "https://aip.baidubce.com/rest/2.0/image-classify/v2/dish"
+
+        img = cv.imencode('.jpg', self.img)[1]
+        img = str(base64.b64encode(img))[2:-1]
+        params = {"image": img}
+
+        params = urllib.parse.urlencode(params).encode("utf-8")
+
+        access_token = '24.d66d45b666d64c58d4597c26018f195d.2592000.1555499580.282335-15777373'
+        request_url = request_url + "?access_token=" + access_token
+        request = urllib.request.Request(url=request_url, data=params)
+        request.add_header('Content-Type', 'application/x-www-form-urlencoded')
+        response = urllib.request.urlopen(request)
+        content = response.read().decode("utf-8")
+
+        line = content.strip()
+        p2 = re.compile('[^\u4e00-\u9fa5]')  # 中文的编码范围是：\u4e00到\u9fa5
+        zh = " ".join(p2.split(line)).strip()
+        zh = "\n".join(zh.split())
+        outStr = zh
+        self.textlabel.setText(outStr)
+
+    def landmarkread(self):
+        request_url = "https://aip.baidubce.com/rest/2.0/image-classify/v1/landmark"
+
+        img = cv.imencode('.jpg', self.img)[1]
+        img = str(base64.b64encode(img))[2:-1]
+        params = {"image": img}
+
+        params = urllib.parse.urlencode(params).encode("utf-8")
+
+        access_token = '24.d66d45b666d64c58d4597c26018f195d.2592000.1555499580.282335-15777373'
+        request_url = request_url + "?access_token=" + access_token
+        request = urllib.request.Request(url=request_url, data=params)
+        request.add_header('Content-Type', 'application/x-www-form-urlencoded')
+        response = urllib.request.urlopen(request)
+        content = response.read().decode("utf-8")
+
+        line = content.strip()
+        p2 = re.compile('[^\u4e00-\u9fa5]')  # 中文的编码范围是：\u4e00到\u9fa5
+        zh = " ".join(p2.split(line)).strip()
+        zh = "\n".join(zh.split())
+        outStr = zh
+        self.textlabel.setText(outStr)
+
+    def carread(self):
+        request_url = "https://aip.baidubce.com/rest/2.0/image-classify/v1/car"
+
+        img = cv.imencode('.jpg', self.img)[1]
+        img = str(base64.b64encode(img))[2:-1]
+        params = {"image": img}
+
+        params = urllib.parse.urlencode(params).encode("utf-8")
+
+        access_token = '24.d66d45b666d64c58d4597c26018f195d.2592000.1555499580.282335-15777373'
+        request_url = request_url + "?access_token=" + access_token
+        request = urllib.request.Request(url=request_url, data=params)
+        request.add_header('Content-Type', 'application/x-www-form-urlencoded')
+        response = urllib.request.urlopen(request)
+        content = response.read().decode("utf-8")
+
+        line = content.strip()
+        p2 = re.compile('[^\u4e00-\u9fa5]')  # 中文的编码范围是：\u4e00到\u9fa5
+        zh = " ".join(p2.split(line)).strip()
+        zh = "\n".join(zh.split())
+        outStr = zh
+        self.textlabel.setText(outStr)
+
+    def logoread(self):
+        request_url = "https://aip.baidubce.com/rest/2.0/image-classify/v2/logo"
+
+        img = cv.imencode('.jpg', self.img)[1]
+        img = str(base64.b64encode(img))[2:-1]
+        params = {"image": img}
+
+        params = urllib.parse.urlencode(params).encode("utf-8")
+
+        access_token = '24.d66d45b666d64c58d4597c26018f195d.2592000.1555499580.282335-15777373'
+        request_url = request_url + "?access_token=" + access_token
+        request = urllib.request.Request(url=request_url, data=params)
+        request.add_header('Content-Type', 'application/x-www-form-urlencoded')
+        response = urllib.request.urlopen(request)
+        content = response.read().decode("utf-8")
+
+        line = content.strip()
+        p2 = re.compile('[^\u4e00-\u9fa5]')  # 中文的编码范围是：\u4e00到\u9fa5
+        zh = " ".join(p2.split(line)).strip()
+        zh = "\n".join(zh.split())
+        outStr = zh
+        self.textlabel.setText(outStr)
+
+    def anythingread(self):
+        request_url = "https://aip.baidubce.com/rest/2.0/image-classify/v2/advanced_general"
+
+        img = cv.imencode('.jpg', self.img)[1]
+        img = str(base64.b64encode(img))[2:-1]
+        params = {"image": img}
+
+        params = urllib.parse.urlencode(params).encode("utf-8")
+
+        access_token = '24.d66d45b666d64c58d4597c26018f195d.2592000.1555499580.282335-15777373'
+        request_url = request_url + "?access_token=" + access_token
+        request = urllib.request.Request(url=request_url, data=params)
+        request.add_header('Content-Type', 'application/x-www-form-urlencoded')
+        response = urllib.request.urlopen(request)
+        content = response.read().decode("utf-8")
+
+        line = content.strip()
+        p2 = re.compile('[^\u4e00-\u9fa5]')  # 中文的编码范围是：\u4e00到\u9fa5
+        zh = " ".join(p2.split(line)).strip()
+        zh = "\n".join(zh.split())
+        outStr = zh
+        self.textlabel.setText(outStr)

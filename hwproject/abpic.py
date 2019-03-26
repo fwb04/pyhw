@@ -13,15 +13,17 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     # 定义父窗口和子窗口
-    p = pwindow()
     c = cwindow()
+    p = pwindow()
+
+    c.addbtn.clicked.connect(p.show)
 
     # 按下add1按钮时从本地添加图片
-    p.abtn.clicked.connect(c.handle_click)
+    # p.abtn.clicked.connect(c.handle_click)
     p.abtn.clicked.connect(c.openImg)
 
     # 按下add2按钮时从网络添加图片
-    p.adbtn.clicked.connect(c.handle_click)
+    # p.adbtn.clicked.connect(c.handle_click)
     p.adbtn.clicked.connect(c.download_img)
 
     # 隐藏父窗口
