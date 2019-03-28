@@ -13,8 +13,7 @@ from PyQt5.QtCore import QCoreApplication, Qt
 # from PyQt5 import QtCore,QtGui,QtWidgets
 from PyQt5.QtWidgets import (QApplication, QDialog, QFileDialog,
     QGridLayout, QLabel, QPushButton, QWidget, QToolTip, QMessageBox,
-    QInputDialog, QLineEdit, QComboBox, QScrollArea, QTabWidget)
-import base64
+    QInputDialog, QLineEdit, QComboBox, QScrollArea, QTabWidget, QMainWindow)
 import urllib
 import urllib.request
 import os, base64
@@ -23,6 +22,7 @@ import json
 # pwindow类继承于QWidget
 class pwindow(QWidget):
 
+    # 窗口初始化
     def __init__(self):
         super().__init__()
         self.initUI()
@@ -39,14 +39,14 @@ class pwindow(QWidget):
         # 为tooltip设置了10px的Sanserif字体
         QToolTip.setFont(QFont('SansSerif', 15))
 
-        # 创建按钮和提示消息
+        # 创建添加按钮1和提示消息
         self.abtn = QPushButton('Add1', self)
         self.abtn.setToolTip('Add a picture from your labtap')
         # self.abtn.clicked.connect(self.openImg)
         # self.abtn.clicked.connect(self.hide)
         self.abtn.resize(self.abtn.sizeHint())
 
-        # 创建按钮和提示消息
+        # 创建添加按钮2和提示消息
         self.adbtn = QPushButton('Add2', self)
         self.adbtn.setToolTip('Add a picture from internet')
         # abtn.clicked.connect(self.openSlot)
@@ -63,9 +63,6 @@ class pwindow(QWidget):
         layout.addWidget(self.abtn, 4, 1, 1, 1)
         layout.addWidget(self.adbtn, 4, 2, 1, 1)
         layout.addWidget(qbtn, 4, 3, 1, 1)
-        # layout.addWidget(abtn, 4, 1, 1, 1)
-
-        # self.show()
 
     # 二次确认是否退出
     def closeEvent(self, event):
@@ -82,7 +79,6 @@ class pwindow(QWidget):
 class cwindow(QWidget):
 
     def __init__(self):
-
         # 初始化一个img的ndarray, 用于存储图像
         self.img = np.ndarray(())
         super().__init__()
@@ -92,12 +88,10 @@ class cwindow(QWidget):
     def initUI(self):
 
         # 窗口大小，位置，名称，图标
-        # self.setGeometry(300, 300, 1000, 800)
-        # self.setFixedSize(960, 700)
         self.resize(1024, 768)
         # self.setMaximumSize(1600, 1200)
         self.setMinimumSize(1024, 768)
-        self.setWindowTitle('Adding successfully')
+        self.setWindowTitle('photo processing tool')
         self.setWindowIcon(QIcon('pic.png'))
 
         # self.main_widget = QWidget()  # 创建窗口主部件
@@ -118,11 +112,19 @@ class cwindow(QWidget):
         # self.main_layout.addWidget(self.right_widget, 0, 10, 12, 2)  # 右侧部件在第0行第3列，占8行9列
         # # self.setCentralWidget(self.main_widget)  # 设置窗口主部件
 
-        # 创建图像处理功能按钮
+        # 创建图像显示label
         self.la = QLabel(self)
         self.scrollarea = QScrollArea(self)
         self.tab = QTabWidget(self)
+
+        # 文字显示label
         self.textlabel = QLabel(self)
+        self.text1 = QLabel(self)
+        self.text2 = QLabel(self)
+        self.text1.setText("基本图像处理")
+        self.text2.setText("图像识别")
+
+        # 创建图像处理功能按钮
         self.lrbtn = QPushButton('左旋', self)
         self.rrbtn = QPushButton('右旋', self)
         self.mabtn = QPushButton('放大', self)
@@ -137,14 +139,17 @@ class cwindow(QWidget):
         # 创建quit按钮
         self.qbtn = QPushButton('Quit', self)
         self.qbtn.setToolTip('Quit this app')
-        self.qbtn.clicked.connect(QCoreApplication.instance().quit)
 
+        # 设置图像显示和文字显示label背景
         self.la.setStyleSheet("QLabel{background:white;}")
         # self.la.setAlignment(Qt.AlignCenter)
-        self.la.setScaledContents(True)
+        # self.la.setScaledContents(True)
         self.scrollarea.setWidget(self.la)
-        self.scrollarea.setWidgetResizable(False)
+        # self.scrollarea.setWidgetResizable(False)
         # self.scrollarea.setMinimumSize(800, 600)
+        # widget = QWidget()
+        # self.scrollarea.setWidget(widget)
+        # self.la =
         self.scrollarea.setAlignment(Qt.AlignCenter)
         self.tab.addTab(self.scrollarea, "page 1")
         self.tab.show()
@@ -152,17 +157,19 @@ class cwindow(QWidget):
                            "QLabel{color:rgb(100,100,100,250);font-size:20px;font-weight:bold;font-family:宋体;}"
                            "QLabel:hover{color:rgb(100,100,100,120);}")
 
+        # 创建按钮的信号与槽的连接
         self.mabtn.clicked.connect(self.magnify_img)
         self.shbtn.clicked.connect(self.shrink_img)
         self.mbtn.clicked.connect(self.magnify2)
         self.lrbtn.clicked.connect(self.leftrotation)
         self.rrbtn.clicked.connect(self.rightrotation)
         self.sabtn.clicked.connect(self.saveImg)
-
+        self.qbtn.clicked.connect(QCoreApplication.instance().quit)
         self.libtn.clicked.connect(self.color)
         self.dfbtn.clicked.connect(self.defog)
 
-        self.combo = QComboBox(self)  # 创建一个下拉列表框并填充了五个列表项
+        # 创建一个下拉列表框并填充了7个列表项
+        self.combo = QComboBox(self)
         self.combo.addItem("菜品识别")
         self.combo.addItem("动物识别")
         self.combo.addItem("植物识别")
@@ -177,7 +184,7 @@ class cwindow(QWidget):
         # 布局设定
         self.layout = QGridLayout(self)
         self.layout.addWidget(self.la, 1, 0, 16, 10)
-        self.layout.addWidget(self.scrollarea, )
+        self.layout.addWidget(self.scrollarea, 2, 1, 15, 9)
         self.layout.addWidget(self.lrbtn, 0, 10, 2, 1)
         self.layout.addWidget(self.rrbtn, 1, 10, 2, 1)
         self.layout.addWidget(self.mabtn, 2, 10, 2, 1)
@@ -197,6 +204,7 @@ class cwindow(QWidget):
     def activate(self):
         self.combo.activated[str].connect(self.onActivated)
 
+    # 列表项选中连接方法
     def onActivated(self, text):
         if text == "动物识别":
             self.animalread()
@@ -217,17 +225,19 @@ class cwindow(QWidget):
         if not self.isVisible():
             self.show()
 
+    # 提示框获取输入网址
     def getWeb(self):
         self.web, okPressed = QInputDialog.getText(self, "Get text", "Web site:", QLineEdit.Normal, "")
         if okPressed and self.web != '':
             return self.web
 
+    # 提示框获取输入名称
     def getName(self):
         self.name, okPressed = QInputDialog.getText(self, "Get text", "Img name:", QLineEdit.Normal, "")
         if okPressed and self.name != '':
             return self.name
 
-
+    # 打开本地图像方法
     def openImg(self):
         # 调用打开文件diglog
         fileName, tmp = QFileDialog.getOpenFileName(
@@ -244,6 +254,7 @@ class cwindow(QWidget):
 
         self.refreshShow1()
 
+    # 将图像保存到本地方法
     def saveImg(self):
         # 调用存储文件dialog
         fileName, tmp = QFileDialog.getSaveFileName(
@@ -257,6 +268,7 @@ class cwindow(QWidget):
         # 调用opencv写入图像
         cv.imwrite(fileName, self.img)
 
+    # 图像显示方法
     def refreshShow1(self):
 
         # 提取图像的尺寸和通道, 用于将opencv下的image转换成Qimage
@@ -277,11 +289,11 @@ class cwindow(QWidget):
         # 将Qimage显示出来
         self.la.setPixmap(QPixmap.fromImage(self.qImg))
 
+    # 从网络下载图片
     def download_img(self):
         web = self.getWeb()
         name = self.getName()
-        # self.web, okPressed = QInputDialog.getText(self, "Get text", "Web site:", QLineEdit.Normal, "")
-        # self.name, okPressed = QInputDialog.getText(self, "Get text", "Img name:", QLineEdit.Normal, "")
+
         url_info = [web, name]
         if url_info[1]:
             # print("-----------downloading image %s" % (url_info[0]))
@@ -306,29 +318,28 @@ class cwindow(QWidget):
                 print("--------Error----")
                 pass
 
+    # 放大图片
     def magnify_img(self):
 
+        # 将图像两个方向拉伸1.1倍
         self.img = cv.resize(self.img, (0, 0), fx=1.1, fy=1.1,
                              interpolation=cv.INTER_NEAREST)
-        # print(self.img.shape[1])
-        # r = 100.0 / self.img.shape[1]
-        # dim = (100, int(self.img.shape[0] * r))
-        # self.img = cv.resize(self.img, dim, interpolation=cv.INTER_AREA)
+
         self.refreshShow1()
 
+    # 调用无损放大图片api
     def magnify2(self):
+        # 网址
         request_url = "https://aip.baidubce.com/rest/2.0/image-classify/v1/image_quality_enhance"
 
-        # 二进制方式打开图片文件
-        # f = open('杨幂.jpg', 'rb')
-        # img = base64.b64encode(self.img.read())
-
+        # 图像进行base64编码
         img = cv.imencode('.jpg', self.img)[1]
         img = str(base64.b64encode(img))[2:-1]
         params = {"image": img}
 
         params = urllib.parse.urlencode(params).encode("utf-8")
 
+        # 调用api，获取返回内容
         access_token = '24.d66d45b666d64c58d4597c26018f195d.2592000.1555499580.282335-15777373'
         request_url = request_url + "?access_token=" + access_token
         request = urllib.request.Request(url=request_url, data=params)
@@ -336,38 +347,37 @@ class cwindow(QWidget):
         response = urllib.request.urlopen(request)
         content = response.read().decode("utf-8")
 
+        # 获取返回图片的base64编码并进行解码
         i = content.find("image")
         code = content[i + 9:-2]
         imgdata = base64.b64decode(code)
 
+        # 将解码后的图像放入gui中显示
         img_array = np.fromstring(imgdata, np.uint8)
         self.img = cv.imdecode(img_array, cv.COLOR_BGR2RGB)
 
         self.refreshShow1()
 
+    # 缩小图像
     def shrink_img(self):
-        # height, width = self.img.shape[:2]
-        # size = (int(width * 0.3), int(height * 0.5))
-        # self.img = cv.resize(self.img, size, interpolation=cv.INTER_AREA)
+        # 将图像两个方向压缩0.9倍
         self.img = cv.resize(self.img, (0, 0), fx=0.9, fy=0.9,
                              interpolation=cv.INTER_NEAREST)
         self.refreshShow1()
 
+    # 图像左旋
     def leftrotation(self):
 
-        # rows, cols = self.img.shape
-        # print(rows, cols)
-        # 90度旋转
-        # M = cv.getRotationMatrix2D((cols / 2, rows / 2), 90, 1)
-        # self.img = cv.warpAffine(self.img, M, (cols, rows))
-
+        # 使用numpy中的方法将图像向左旋转90度
         self.img = np.rot90(self.img)
-        # self.img = img.transpose(img.ROTATE_270)
+
         self.img = cv.resize(self.img, (0, 0), fx=1, fy=1,
                              interpolation=cv.INTER_NEAREST)
         self.refreshShow1()
 
+    # 图像右旋
     def rightrotation(self):
+        # 将图像右旋90度即左旋270度
         self.img = np.rot90(self.img)
         self.img = np.rot90(self.img)
         self.img = np.rot90(self.img)
@@ -375,6 +385,7 @@ class cwindow(QWidget):
                              interpolation=cv.INTER_NEAREST)
         self.refreshShow1()
 
+    # 图像对比度增强API
     def color(self):
         request_url = "https://aip.baidubce.com/rest/2.0/image-classify/v1/contrast_enhance"
 
@@ -400,6 +411,7 @@ class cwindow(QWidget):
 
         self.refreshShow1()
 
+    # 图像去雾处理API
     def defog(self):
         request_url = "https://aip.baidubce.com/rest/2.0/image-process/v1/dehaze"
 
@@ -425,6 +437,7 @@ class cwindow(QWidget):
 
         self.refreshShow1()
 
+    # 识别图像中的动物API
     def animalread(self):
         request_url = "https://aip.baidubce.com/rest/2.0/image-classify/v1/animal"
 
@@ -441,17 +454,12 @@ class cwindow(QWidget):
         response = urllib.request.urlopen(request)
         content = response.read().decode("utf-8")
 
-        line = content.strip()
-        p2 = re.compile('[^\u4e00-\u9fa5]')  # 中文的编码范围是：\u4e00到\u9fa5
-        zh = " ".join(p2.split(line)).strip()
-        zh = "\n".join(zh.split())
-        outStr = zh
-        self.textlabel.setText(outStr)
+        # 对返回的字符串进行排版并显示出来
+        hjson = json.loads(content)
+        js = json.dumps(hjson, sort_keys=True, indent=4, separators=(',', ';'), ensure_ascii=False)
+        self.textlabel.setText(js)
 
-        # print(content)
-        # self.textlabel.setText(content)
-        # self.textlabel.adjustSize()
-
+    # 识别图像中的植物
     def plantread(self):
         request_url = "https://aip.baidubce.com/rest/2.0/image-classify/v1/plant"
 
@@ -468,13 +476,11 @@ class cwindow(QWidget):
         response = urllib.request.urlopen(request)
         content = response.read().decode("utf-8")
 
-        line = content.strip()
-        p2 = re.compile('[^\u4e00-\u9fa5]')  # 中文的编码范围是：\u4e00到\u9fa5
-        zh = " ".join(p2.split(line)).strip()
-        zh = "\n".join(zh.split())
-        outStr = zh
-        self.textlabel.setText(outStr)
+        hjson = json.loads(content)
+        js = json.dumps(hjson, sort_keys=True, indent=4, separators=(',', ';'), ensure_ascii=False)
+        self.textlabel.setText(js)
 
+    # 识别图像中的菜品
     def dishread(self):
         request_url = "https://aip.baidubce.com/rest/2.0/image-classify/v2/dish"
 
@@ -491,13 +497,11 @@ class cwindow(QWidget):
         response = urllib.request.urlopen(request)
         content = response.read().decode("utf-8")
 
-        line = content.strip()
-        p2 = re.compile('[^\u4e00-\u9fa5]')  # 中文的编码范围是：\u4e00到\u9fa5
-        zh = " ".join(p2.split(line)).strip()
-        zh = "\n".join(zh.split())
-        outStr = zh
-        self.textlabel.setText(outStr)
+        hjson = json.loads(content)
+        js = json.dumps(hjson, sort_keys=True, indent=4, separators=(',', ';'), ensure_ascii=False)
+        self.textlabel.setText(js)
 
+    # 识别图像中的地标
     def landmarkread(self):
         request_url = "https://aip.baidubce.com/rest/2.0/image-classify/v1/landmark"
 
@@ -514,13 +518,11 @@ class cwindow(QWidget):
         response = urllib.request.urlopen(request)
         content = response.read().decode("utf-8")
 
-        line = content.strip()
-        p2 = re.compile('[^\u4e00-\u9fa5]')  # 中文的编码范围是：\u4e00到\u9fa5
-        zh = " ".join(p2.split(line)).strip()
-        zh = "\n".join(zh.split())
-        outStr = zh
-        self.textlabel.setText(outStr)
+        hjson = json.loads(content)
+        js = json.dumps(hjson, sort_keys=True, indent=4, separators=(',', ';'), ensure_ascii=False)
+        self.textlabel.setText(js)
 
+    # 识别图像中的车型
     def carread(self):
         request_url = "https://aip.baidubce.com/rest/2.0/image-classify/v1/car"
 
@@ -537,13 +539,11 @@ class cwindow(QWidget):
         response = urllib.request.urlopen(request)
         content = response.read().decode("utf-8")
 
-        line = content.strip()
-        p2 = re.compile('[^\u4e00-\u9fa5]')  # 中文的编码范围是：\u4e00到\u9fa5
-        zh = " ".join(p2.split(line)).strip()
-        zh = "\n".join(zh.split())
-        outStr = zh
-        self.textlabel.setText(outStr)
+        hjson = json.loads(content)
+        js = json.dumps(hjson, sort_keys=True, indent=4, separators=(',', ';'), ensure_ascii=False)
+        self.textlabel.setText(js)
 
+    # 识别图像中的商标
     def logoread(self):
         request_url = "https://aip.baidubce.com/rest/2.0/image-classify/v2/logo"
 
@@ -560,13 +560,11 @@ class cwindow(QWidget):
         response = urllib.request.urlopen(request)
         content = response.read().decode("utf-8")
 
-        line = content.strip()
-        p2 = re.compile('[^\u4e00-\u9fa5]')  # 中文的编码范围是：\u4e00到\u9fa5
-        zh = " ".join(p2.split(line)).strip()
-        zh = "\n".join(zh.split())
-        outStr = zh
-        self.textlabel.setText(outStr)
+        hjson = json.loads(content)
+        js = json.dumps(hjson, sort_keys=True, indent=4, separators=(',', ';'), ensure_ascii=False)
+        self.textlabel.setText(js)
 
+    # 识别图像中的物体信息
     def anythingread(self):
         request_url = "https://aip.baidubce.com/rest/2.0/image-classify/v2/advanced_general"
 
@@ -583,9 +581,6 @@ class cwindow(QWidget):
         response = urllib.request.urlopen(request)
         content = response.read().decode("utf-8")
 
-        line = content.strip()
-        p2 = re.compile('[^\u4e00-\u9fa5]')  # 中文的编码范围是：\u4e00到\u9fa5
-        zh = " ".join(p2.split(line)).strip()
-        zh = "\n".join(zh.split())
-        outStr = zh
-        self.textlabel.setText(outStr)
+        hjson = json.loads(content)
+        js = json.dumps(hjson, sort_keys=True, indent=4, separators=(',', ';'), ensure_ascii=False)
+        self.textlabel.setText(js)
