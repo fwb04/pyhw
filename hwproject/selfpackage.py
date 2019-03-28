@@ -76,7 +76,7 @@ class pwindow(QWidget):
             event.ignore()
 
 
-class cwindow(QWidget):
+class cwindow(QMainWindow):
 
     def __init__(self):
         # 初始化一个img的ndarray, 用于存储图像
@@ -94,31 +94,31 @@ class cwindow(QWidget):
         self.setWindowTitle('photo processing tool')
         self.setWindowIcon(QIcon('pic.png'))
 
-        # self.main_widget = QWidget()  # 创建窗口主部件
-        # self.main_layout = QGridLayout()  # 创建主部件的网格布局
-        # self.main_widget.setLayout(self.main_layout)  # 设置窗口主部件布局为网格布局
-        #
-        # self.left_widget = QWidget()  # 创建左侧部件
-        # self.left_widget.setObjectName('left_widget')
-        # self.left_layout = QGridLayout()  # 创建左侧部件的网格布局层
-        # self.left_widget.setLayout(self.left_layout)  # 设置左侧部件布局为网格
-        #
-        # self.right_widget = QWidget()  # 创建右侧部件
-        # self.right_widget.setObjectName('right_widget')
-        # self.right_layout = QGridLayout()
-        # self.right_widget.setLayout(self.right_layout)  # 设置右侧部件布局为网格
-        #
-        # self.main_layout.addWidget(self.left_widget, 0, 0, 12, 10)  # 左侧部件在第0行第0列，占8行3列
-        # self.main_layout.addWidget(self.right_widget, 0, 10, 12, 2)  # 右侧部件在第0行第3列，占8行9列
-        # # self.setCentralWidget(self.main_widget)  # 设置窗口主部件
+        self.main_widget = QWidget()  # 创建窗口主部件
+        self.main_layout = QGridLayout()  # 创建主部件的网格布局
+        self.main_widget.setLayout(self.main_layout)  # 设置窗口主部件布局为网格布局
+
+        self.left_widget = QWidget()  # 创建左侧部件
+        self.left_widget.setObjectName('left_widget')
+        self.left_layout = QGridLayout()  # 创建左侧部件的网格布局层
+        self.left_widget.setLayout(self.left_layout)  # 设置左侧部件布局为网格
+
+        self.right_widget = QWidget()  # 创建右侧部件
+        self.right_widget.setObjectName('right_widget')
+        self.right_layout = QGridLayout()
+        self.right_widget.setLayout(self.right_layout)  # 设置右侧部件布局为网格
+
+        self.main_layout.addWidget(self.left_widget, 0, 0, 16, 10)  # 左侧部件在第0行第0列，占8行3列
+        self.main_layout.addWidget(self.right_widget, 0, 10, 16, 2)  # 右侧部件在第0行第3列，占8行9列
+        self.setCentralWidget(self.main_widget)  # 设置窗口主部件
 
         # 创建图像显示label
         self.la = QLabel(self)
         self.scrollarea = QScrollArea(self)
-        self.tab = QTabWidget(self)
 
         # 文字显示label
         self.textlabel = QLabel(self)
+        self.scrollarea2 = QScrollArea(self)
         self.text1 = QLabel(self)
         self.text2 = QLabel(self)
         self.text1.setText("基本图像处理")
@@ -145,17 +145,18 @@ class cwindow(QWidget):
         # self.la.setAlignment(Qt.AlignCenter)
         # self.la.setScaledContents(True)
         self.scrollarea.setWidget(self.la)
-        # self.scrollarea.setWidgetResizable(False)
-        # self.scrollarea.setMinimumSize(800, 600)
-        # widget = QWidget()
-        # self.scrollarea.setWidget(widget)
-        # self.la =
+        self.scrollarea.setWidgetResizable(True)
+        self.scrollarea.setMinimumSize(800, 600)
         self.scrollarea.setAlignment(Qt.AlignCenter)
-        self.tab.addTab(self.scrollarea, "page 1")
-        self.tab.show()
+        # self.tab.addTab(self.scrollarea, "page 1")
+        # self.tab.show()
+
+        self.scrollarea2.setWidget(self.textlabel)
+        self.scrollarea2.setWidgetResizable(True)
+        self.scrollarea2.setAlignment(Qt.AlignCenter)
         self.textlabel.setStyleSheet("QLabel{background:white;}"
-                           "QLabel{color:rgb(100,100,100,250);font-size:20px;font-weight:bold;font-family:宋体;}"
-                           "QLabel:hover{color:rgb(100,100,100,120);}")
+                           "QLabel{color:rgb(100,100,100,250);font-size:20px;font-weight:bold;font-family:宋体;}")
+                           # "QLabel:hover{color:rgb(100,100,100,120);}")
 
         # 创建按钮的信号与槽的连接
         self.mabtn.clicked.connect(self.magnify_img)
@@ -182,22 +183,23 @@ class cwindow(QWidget):
         # 一旦列表项被选中，会调用onActivated()方法
 
         # 布局设定
-        self.layout = QGridLayout(self)
-        self.layout.addWidget(self.la, 1, 0, 16, 10)
-        self.layout.addWidget(self.scrollarea, 2, 1, 15, 9)
-        self.layout.addWidget(self.lrbtn, 0, 10, 2, 1)
-        self.layout.addWidget(self.rrbtn, 1, 10, 2, 1)
-        self.layout.addWidget(self.mabtn, 2, 10, 2, 1)
-        self.layout.addWidget(self.shbtn, 3, 10, 2, 1)
-        self.layout.addWidget(self.mbtn, 4, 10, 2, 1)
-        self.layout.addWidget(self.dfbtn, 5, 10, 2, 1)
-        self.layout.addWidget(self.libtn, 6, 10, 2, 1)
-        self.layout.addWidget(self.sabtn, 7, 10, 2, 1)
-        self.layout.addWidget(self.combo, 9, 10, 1, 1)
-        self.layout.addWidget(self.pickbtn, 9, 11, 1, 1)
-        self.layout.addWidget(self.textlabel, 10, 10, 2, 2)
-        self.layout.addWidget(self.addbtn, 12, 10, 2, 1)
-        self.layout.addWidget(self.qbtn, 13, 10, 2, 1)
+        # self.layout = QGridLayout(self)
+        # self.left_layout.addWidget(self.la, 0, 0, 16, 10)
+        self.left_layout.addWidget(self.scrollarea, 0, 0, 16, 10)
+        self.right_layout.addWidget(self.text1, 0, 10, 1, 2)
+        self.right_layout.addWidget(self.lrbtn, 1, 10, 1, 1)
+        self.right_layout.addWidget(self.rrbtn, 2, 10, 1, 1)
+        self.right_layout.addWidget(self.mabtn, 3, 10, 1, 1)
+        self.right_layout.addWidget(self.shbtn, 4, 10, 1, 1)
+        self.right_layout.addWidget(self.mbtn, 5, 10, 1, 1)
+        self.right_layout.addWidget(self.dfbtn, 6, 10, 1, 1)
+        self.right_layout.addWidget(self.libtn, 7, 10, 1, 1)
+        self.right_layout.addWidget(self.text2, 8, 10, 1, 2)
+        self.right_layout.addWidget(self.combo, 9, 10, 1, 2)
+        self.right_layout.addWidget(self.scrollarea2, 10, 10, 4, 2)
+        self.right_layout.addWidget(self.addbtn, 14, 10, 1, 1)
+        self.right_layout.addWidget(self.sabtn, 15, 10, 1, 1)
+        self.right_layout.addWidget(self.qbtn, 16, 10, 1, 1)
 
         self.show()
 
