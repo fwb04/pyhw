@@ -4,13 +4,11 @@
 import sys
 import re
 import PIL.Image as img
-# import qtawesome
 import cv2 as cv
 import numpy as np
 import requests
 from PyQt5.QtGui import QImage, QPixmap, QIcon, QFont, QPalette
 from PyQt5.QtCore import QCoreApplication, Qt
-# from PyQt5 import QtCore,QtGui,QtWidgets
 from PyQt5.QtWidgets import (QApplication, QDialog, QFileDialog,
     QGridLayout, QLabel, QPushButton, QWidget, QToolTip, QMessageBox,
     QInputDialog, QLineEdit, QComboBox, QScrollArea, QTabWidget, QMainWindow)
@@ -19,8 +17,8 @@ import urllib.request
 import os, base64
 import json
 
-# pwindow类继承于QWidget
-class pwindow(QWidget):
+# cwindow类继承于QWidget
+class cwindow(QWidget):
 
     # 窗口初始化
     def __init__(self):
@@ -53,7 +51,7 @@ class pwindow(QWidget):
         self.adbtn.resize(self.adbtn.sizeHint())
 
         # 创建quit按钮
-        qbtn = QPushButton('Quit', self)
+        qbtn = QPushButton('Cancel', self)
         qbtn.setToolTip('Quit this app')
         qbtn.clicked.connect(QCoreApplication.instance().quit)
         qbtn.resize(qbtn.sizeHint())
@@ -75,8 +73,8 @@ class pwindow(QWidget):
         else:
             event.ignore()
 
-
-class cwindow(QMainWindow):
+# pwindow类继承于QMainWindow
+class pwindow(QMainWindow):
 
     def __init__(self):
         # 初始化一个img的ndarray, 用于存储图像
@@ -108,8 +106,8 @@ class cwindow(QMainWindow):
         self.right_layout = QGridLayout()
         self.right_widget.setLayout(self.right_layout)  # 设置右侧部件布局为网格
 
-        self.main_layout.addWidget(self.left_widget, 0, 0, 16, 10)  # 左侧部件在第0行第0列，占8行3列
-        self.main_layout.addWidget(self.right_widget, 0, 10, 16, 2)  # 右侧部件在第0行第3列，占8行9列
+        self.main_layout.addWidget(self.left_widget, 0, 0, 16, 8)  # 左侧部件在第0行第0列，占16行10列
+        self.main_layout.addWidget(self.right_widget, 0, 10, 16, 3)  # 右侧部件在第0行第10列，占16行2列
         self.setCentralWidget(self.main_widget)  # 设置窗口主部件
 
         # 创建图像显示label
@@ -133,17 +131,14 @@ class cwindow(QMainWindow):
         self.dfbtn = QPushButton('去雾', self)
         self.libtn = QPushButton('增艳', self)
         self.sabtn = QPushButton('另存为', self)
-        self.pickbtn = QPushButton('确定', self)
         self.addbtn = QPushButton('添加', self)
 
         # 创建quit按钮
-        self.qbtn = QPushButton('Quit', self)
+        self.qbtn = QPushButton('退出', self)
         self.qbtn.setToolTip('Quit this app')
 
-        # 设置图像显示和文字显示label背景
+        # 设置图像显示label背景及滚动区域
         self.la.setStyleSheet("QLabel{background:white;}")
-        # self.la.setAlignment(Qt.AlignCenter)
-        # self.la.setScaledContents(True)
         self.scrollarea.setWidget(self.la)
         self.scrollarea.setWidgetResizable(True)
         self.scrollarea.setMinimumSize(800, 600)
@@ -151,6 +146,7 @@ class cwindow(QMainWindow):
         # self.tab.addTab(self.scrollarea, "page 1")
         # self.tab.show()
 
+        # 设置文字显示label背景及滚动区域
         self.scrollarea2.setWidget(self.textlabel)
         self.scrollarea2.setWidgetResizable(True)
         self.scrollarea2.setAlignment(Qt.AlignCenter)
@@ -179,32 +175,28 @@ class cwindow(QMainWindow):
         self.combo.addItem("车型识别")
         self.combo.addItem("通用物体识别")
         self.combo.activated[str].connect(self.onActivated)
-        # self.pickbtn.clicked.connect(self.activate)
         # 一旦列表项被选中，会调用onActivated()方法
 
         # 布局设定
-        # self.layout = QGridLayout(self)
-        # self.left_layout.addWidget(self.la, 0, 0, 16, 10)
-        self.left_layout.addWidget(self.scrollarea, 0, 0, 16, 10)
-        self.right_layout.addWidget(self.text1, 0, 10, 1, 2)
-        self.right_layout.addWidget(self.lrbtn, 1, 10, 1, 1)
-        self.right_layout.addWidget(self.rrbtn, 2, 10, 1, 1)
-        self.right_layout.addWidget(self.mabtn, 3, 10, 1, 1)
-        self.right_layout.addWidget(self.shbtn, 4, 10, 1, 1)
-        self.right_layout.addWidget(self.mbtn, 5, 10, 1, 1)
-        self.right_layout.addWidget(self.dfbtn, 6, 10, 1, 1)
-        self.right_layout.addWidget(self.libtn, 7, 10, 1, 1)
-        self.right_layout.addWidget(self.text2, 8, 10, 1, 2)
-        self.right_layout.addWidget(self.combo, 9, 10, 1, 2)
-        self.right_layout.addWidget(self.scrollarea2, 10, 10, 4, 2)
-        self.right_layout.addWidget(self.addbtn, 14, 10, 1, 1)
-        self.right_layout.addWidget(self.sabtn, 15, 10, 1, 1)
-        self.right_layout.addWidget(self.qbtn, 16, 10, 1, 1)
+        self.left_layout.addWidget(self.scrollarea, 0, 0, 16, 8)
+        self.right_layout.addWidget(self.text1, 0, 8, 1, 2)
+        self.right_layout.addWidget(self.lrbtn, 1, 8, 1, 1)
+        self.right_layout.addWidget(self.rrbtn, 2, 8, 1, 1)
+        self.right_layout.addWidget(self.mabtn, 3, 8, 1, 1)
+        self.right_layout.addWidget(self.shbtn, 4, 8, 1, 1)
+        self.right_layout.addWidget(self.mbtn, 5, 8, 1, 1)
+        self.right_layout.addWidget(self.dfbtn, 6, 8, 1, 1)
+        self.right_layout.addWidget(self.libtn, 7, 8, 1, 1)
+        self.right_layout.addWidget(self.text2, 8, 8, 1, 2)
+        self.right_layout.addWidget(self.combo, 9, 8, 1, 2)
+        self.right_layout.addWidget(self.scrollarea2, 10, 8, 4, 2)
+        self.right_layout.addWidget(self.addbtn, 14, 8, 1, 1)
+        self.right_layout.addWidget(self.sabtn, 15, 8, 1, 1)
+        self.right_layout.addWidget(self.qbtn, 16, 8, 1, 1)
 
+        # 显示窗口
         self.show()
 
-    def activate(self):
-        self.combo.activated[str].connect(self.onActivated)
 
     # 列表项选中连接方法
     def onActivated(self, text):
@@ -313,12 +305,14 @@ class cwindow(QMainWindow):
                 if self.webimg.size == 1:
                     return
 
-                self.refreshShow2()
+                self.img = self.webimg
+                self.refreshShow1()
 
                 return (True, path)
             except Exception as ex:
                 print("--------Error----")
                 pass
+        # self.img = self.webimg
 
     # 放大图片
     def magnify_img(self):
@@ -326,7 +320,6 @@ class cwindow(QMainWindow):
         # 将图像两个方向拉伸1.1倍
         self.img = cv.resize(self.img, (0, 0), fx=1.1, fy=1.1,
                              interpolation=cv.INTER_NEAREST)
-
         self.refreshShow1()
 
     # 调用无损放大图片api

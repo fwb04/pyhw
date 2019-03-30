@@ -2,10 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import cv2 as cv
-import numpy as np
 from selfpackage import pwindow, cwindow
-from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtWidgets import (QApplication, QDialog, QFileDialog,
     QGridLayout, QLabel, QPushButton, QWidget, QToolTip)
 
@@ -13,18 +10,18 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     # 定义父窗口和子窗口
-    c = cwindow()
     p = pwindow()
+    c = cwindow()
 
-    c.addbtn.clicked.connect(p.show)
+    # 点击pwindow添加按钮显示cwindow
+    p.addbtn.clicked.connect(c.show)
+    # 点击cwindow的add1按钮从本地添加图片
+    c.abtn.clicked.connect(p.openImg)
+    # 点击cwindow的add2按钮从网络添加图片
+    c.adbtn.clicked.connect(p.download_img)
 
-    p.abtn.clicked.connect(c.openImg)
-
-    p.adbtn.clicked.connect(c.download_img)
-
-    # 隐藏父窗口
-    p.abtn.clicked.connect(p.hide)
-    p.adbtn.clicked.connect(p.hide)
-    # c.qbtn.clicked.connect(p.show)
+    # 添加图片后隐藏cwindow
+    c.abtn.clicked.connect(c.hide)
+    c.adbtn.clicked.connect(c.hide)
 
     sys.exit(app.exec_())
